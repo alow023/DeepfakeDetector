@@ -3,12 +3,10 @@ batch_size: 4
 num_epochs: 1
 
 train_paths:
-  - C:/Datasets/1000_videos/train #train set path
-  - 
+  - "C:/Users/HITSZ/Documents/advance ai/DeepfakeDetector/data/train"
 
 val_paths:
-  - C:/Datasets/1000_videos/validation # validation set path
-  - 
+  - "C:/Users/HITSZ/Documents/advance ai/DeepfakeDetector/data/validation"
 
 early_stopping_patience: 3  # Stop training if val_loss doesn’t improve after 3 epochs
 scheduler_factor: 0.5        # LR drops by half if stuck
