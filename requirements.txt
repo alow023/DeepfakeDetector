@@ -8,3 +8,8 @@ Pillow
 numpy
 scikit-learn
 tensorboard
+torchinfo
+torchmetrics
+matplotlib
+seaborn
+pandas

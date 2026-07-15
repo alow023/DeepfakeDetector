@@ -3,15 +3,12 @@ import torch
 import mimetypes
 from PIL import Image
 import cv2
-from torchvision.models import efficientnet_b0
+from models import load_efficientnet_with_cbam
 from torchvision import transforms
 
 # === Load Model ===
 def load_model():
-    model = efficientnet_b0()
-    model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 2)
-    model.load_state_dict(torch.load("models/best_model-v3.pt", map_location="cpu"))
-    model.eval()
+    model = load_efficientnet_with_cbam(checkpoint_path="models/best_model-v3.pt", use_cbam=True, device="cpu")
     return model
 
 model = load_model()

@@ -3,21 +3,12 @@ import cv2
 import torch
 import numpy as np
 from torchvision import transforms
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from models import load_efficientnet_with_cbam
 from PIL import Image
 
 # 🔄 Load model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-weights = EfficientNet_B0_Weights.IMAGENET1K_V1
-model = efficientnet_b0(weights=weights)
-num_features = model.classifier[1].in_features
-model.classifier = torch.nn.Sequential(
-    torch.nn.Dropout(0.4),
-    torch.nn.Linear(num_features, 2)
-)
-model.load_state_dict(torch.load("models/best_model.pt", map_location=device))
-model = model.to(device)
-model.eval()
+model = load_efficientnet_with_cbam(checkpoint_path="models/best_model.pt", use_cbam=True, device=device)
 
 # 📦 Transform
 transform = transforms.Compose([

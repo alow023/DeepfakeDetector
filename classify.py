@@ -1,20 +1,12 @@
 import torch
 from torchvision import transforms
-from torchvision.models import efficientnet_b0, EfficientNet_B0_Weights
+from models import load_efficientnet_with_cbam
 from PIL import Image
 import argparse
 
 # Load your trained model
-def load_model(model_path="models/best_model.pt"):
-    weights = EfficientNet_B0_Weights.IMAGENET1K_V1
-    model = efficientnet_b0(weights=weights)
-    in_features = model.classifier[1].in_features
-    model.classifier = torch.nn.Sequential(
-        torch.nn.Dropout(0.4),
-        torch.nn.Linear(in_features, 2)
-    )
-    model.load_state_dict(torch.load(model_path, map_location="cpu"))
-    model.eval()
+def load_model(model_path="models/best_model.pt", use_cbam=True):
+    model = load_efficientnet_with_cbam(checkpoint_path=model_path, use_cbam=use_cbam, device="cpu")
     return model
 
 # Preprocess and classify image
