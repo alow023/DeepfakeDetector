@@ -30,8 +30,11 @@ class DeepfakeDetector(pl.LightningModule):
         self.val_losses = []
         self.train_accs = []
         self.val_accs = []
+        self.train_precisions = []  # NEW: Initialize train_precisions
         self.val_precisions = []
+        self.train_recalls = []     # NEW: Initialize train_recalls
         self.val_recalls = []
+        self.train_f1s = []         # NEW: Initialize train_f1s
         self.val_f1s = []
         self.val_aurocs = []
         self.val_confusions = []
@@ -62,16 +65,25 @@ class DeepfakeDetector(pl.LightningModule):
         self.train_losses.append(avg_train_loss.item())
         self.training_step_outputs.clear()
 
-        self.log("train_acc_epoch", self.train_acc.compute(), prog_bar=True)
-        self.log("train_precision_epoch", self.train_precision.compute())
-        self.log("train_recall_epoch", self.train_recall.compute())
-        self.log("train_f1_epoch", self.train_f1.compute())
+        # Compute all metrics once
+        train_acc_val = self.train_acc.compute().item()
+        train_precision_val = self.train_precision.compute().item()
+        train_recall_val = self.train_recall.compute().item()
+        train_f1_val = self.train_f1.compute().item()
 
-        self.train_accs.append(self.train_acc.compute().item())
-        self.train_precisions.append(self.train_precision.compute().item())
-        self.train_recalls.append(self.train_recall.compute().item())
-        self.train_f1s.append(self.train_f1.compute().item())
+        # Log metrics
+        self.log("train_acc_epoch", train_acc_val, prog_bar=True)
+        self.log("train_precision_epoch", train_precision_val)
+        self.log("train_recall_epoch", train_recall_val)
+        self.log("train_f1_epoch", train_f1_val)
 
+        # Save to history
+        self.train_accs.append(train_acc_val)
+        self.train_precisions.append(train_precision_val)
+        self.train_recalls.append(train_recall_val)
+        self.train_f1s.append(train_f1_val)
+
+        # Reset all metrics
         self.train_acc.reset()
         self.train_precision.reset()
         self.train_recall.reset()
@@ -84,11 +96,14 @@ class DeepfakeDetector(pl.LightningModule):
         preds = torch.argmax(logits, dim=1)
         probs = F.softmax(logits, dim=1)
 
+        # For binary AUROC, we need the positive class probability (index 1)
+        pos_probs = probs[:, 1] if self.num_classes == 2 else probs
+
         self.val_acc(preds, y)
         self.val_precision(preds, y)
         self.val_recall(preds, y)
         self.val_f1(preds, y)
-        self.val_auroc(probs, y)
+        self.val_auroc(pos_probs, y)
         self.val_confusion(preds, y)
         self.validation_step_outputs.append(loss)
 
@@ -100,19 +115,30 @@ class DeepfakeDetector(pl.LightningModule):
         self.val_losses.append(avg_val_loss.item())
         self.validation_step_outputs.clear()
 
-        self.log("val_acc_epoch", self.val_acc.compute(), prog_bar=True)
-        self.log("val_precision_epoch", self.val_precision.compute())
-        self.log("val_recall_epoch", self.val_recall.compute())
-        self.log("val_f1_epoch", self.val_f1.compute())
-        self.log("val_auroc_epoch", self.val_auroc.compute())
+        # Compute all metrics once
+        val_acc_val = self.val_acc.compute().item()
+        val_precision_val = self.val_precision.compute().item()
+        val_recall_val = self.val_recall.compute().item()
+        val_f1_val = self.val_f1.compute().item()
+        val_auroc_val = self.val_auroc.compute().item()
+        val_confusion_val = self.val_confusion.compute().cpu().numpy()
 
-        self.val_accs.append(self.val_acc.compute().item())
-        self.val_precisions.append(self.val_precision.compute().item())
-        self.val_recalls.append(self.val_recall.compute().item())
-        self.val_f1s.append(self.val_f1.compute().item())
-        self.val_aurocs.append(self.val_auroc.compute().item())
-        self.val_confusions.append(self.val_confusion.compute().cpu().numpy())
+        # Log metrics
+        self.log("val_acc_epoch", val_acc_val, prog_bar=True)
+        self.log("val_precision_epoch", val_precision_val)
+        self.log("val_recall_epoch", val_recall_val)
+        self.log("val_f1_epoch", val_f1_val)
+        self.log("val_auroc_epoch", val_auroc_val)
 
+        # Save to history
+        self.val_accs.append(val_acc_val)
+        self.val_precisions.append(val_precision_val)
+        self.val_recalls.append(val_recall_val)
+        self.val_f1s.append(val_f1_val)
+        self.val_aurocs.append(val_auroc_val)
+        self.val_confusions.append(val_confusion_val)
+
+        # Reset all metrics
         self.val_acc.reset()
         self.val_precision.reset()
         self.val_recall.reset()

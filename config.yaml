@@ -1,7 +1,8 @@
 lr: 0.0001
 batch_size: 4
-num_epochs: 1
-use_cbam: True
+num_epochs: 5
+use_cbam: False
+DEBUG_MODE: False
 
 train_paths:
   - "C:/Users/HITSZ/Documents/advance ai/DeepfakeDetector/data/train"

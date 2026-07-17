@@ -18,6 +18,22 @@ def run_experiment(experiment_name, use_cbam, cfg):
     print(f"Running Experiment: {experiment_name}")
     print(f"{'='*60}\n")
 
+    # Check Debug Mode
+    debug_mode = cfg.get("DEBUG_MODE", False)
+    if debug_mode:
+        print("="*42)
+        print("DEBUG MODE ENABLED")
+        print("Training on 25% of dataset")
+        print("Epochs: 1")
+        print("="*42)
+        max_epochs = 1
+        limit_train_batches = 0.25
+        limit_val_batches = 0.25
+    else:
+        max_epochs = cfg["num_epochs"]
+        limit_train_batches = 1.0
+        limit_val_batches = 1.0
+
     # Create save directory
     save_dir = os.path.join("results", experiment_name)
     os.makedirs(save_dir, exist_ok=True)
@@ -69,12 +85,14 @@ def run_experiment(experiment_name, use_cbam, cfg):
 
     # Trainer
     trainer = pl.Trainer(
-        max_epochs=cfg["num_epochs"],
+        max_epochs=max_epochs,
         accelerator="gpu" if torch.cuda.is_available() else "cpu",
         callbacks=[checkpoint, early_stop],
         enable_progress_bar=True,
         log_every_n_steps=cfg.get("log_every_n_steps", 1),
-        logger=False
+        logger=False,
+        limit_train_batches=limit_train_batches,
+        limit_val_batches=limit_val_batches
     )
 
     # Start Training
