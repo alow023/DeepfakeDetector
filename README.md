@@ -1,27 +1,72 @@
-# 🧠 Deepfake Detection System
+# 🧠 Attention-Enhanced Deepfake Detection with EfficientNet-B0 and CBAM
 
-A state-of-the-art deepfake detection system built with PyTorch and EfficientNet-B0, featuring a user-friendly web interface for real-time image and video analysis.
+A deep learning-based deepfake detection system built with PyTorch and an attention-enhanced EfficientNet-B0 architecture. The system integrates the Convolutional Block Attention Module (CBAM) to improve the model's ability to focus on discriminative channel features and spatial regions associated with synthetic facial artifacts.
+
+The system supports image and video analysis through a user-friendly web interface and provides a complete training, evaluation, inference, and model export pipeline.
 
 ## ⚙️ Created By
 
-- 👨‍💻 [T RAHUL SINGH](https://github.com/TRahulsingh)
-- 🧑‍💻 [Mallikarjun Macherla](https://github.com/Mallikarjun-Macherla)
-- 🧑‍💻 [Sainath](https://github.com/sainathch45/)
+- 👨‍💻 [TIENTCHEU TAKOU MARUIRCE DONALD](https://github.com/tientcheudonald237/DeepfakeDetector)
+
 
 ---
 
 ## 🌟 Features
 
-- **Deep Learning Model**: EfficientNet-B0 architecture fine-tuned for deepfake detection
+- **Attention-Enhanced Deep Learning Model**: EfficientNet-B0 enhanced with a Convolutional Block Attention Module (CBAM)
+- **Channel and Spatial Attention**: CBAM helps the model emphasize informative feature channels and spatial regions containing potential synthesis artifacts
 - **Multi-format Support**: Analyze both images (.jpg, .jpeg, .png) and videos (.mp4, .mov)
 - **Web Interface**: Interactive Gradio-based web application for easy testing
 - **Real-time Analysis**: Process first frame of videos for quick deepfake detection
 - **Training Pipeline**: Complete PyTorch Lightning training infrastructure
 - **Model Export**: Support for PyTorch (.pt) and ONNX format exports
 
-## 📐 System Architecture
+## 🧠 Attention-Enhanced Model Architecture
 
-For detailed system architecture diagrams, data flow, and component interactions, see [ARCHITECTURE.md](ARCHITECTURE.md).
+The proposed model is based on EfficientNet-B0 enhanced with the Convolutional Block Attention Module (CBAM).
+
+The architecture follows the pipeline:
+
+Input Image
+↓
+EfficientNet-B0 Feature Extractor
+↓
+Channel Attention
+↓
+Spatial Attention
+↓
+Global Average Pooling
+↓
+Dropout
+↓
+Fully Connected Classifier
+↓
+Real / Fake Prediction
+
+### Convolutional Block Attention Module (CBAM)
+
+CBAM is composed of two sequential attention mechanisms:
+
+#### 1. Channel Attention
+
+The Channel Attention Module identifies which feature channels are most informative for the classification task. It uses both average pooling and max pooling to generate channel-wise attention weights.
+
+This allows the network to emphasize feature representations that may be relevant to synthetic facial artifacts.
+
+#### 2. Spatial Attention
+
+The Spatial Attention Module determines which spatial regions of the feature map are more informative. It aggregates channel information using average and max pooling, followed by a convolutional operation.
+
+This allows the model to focus on potentially manipulated facial regions such as:
+
+- Eyes
+- Mouth
+- Skin regions
+- Facial boundaries
+- Texture inconsistencies
+
+The resulting attention-refined feature representation is then passed to the classification head.
+
 
 ## 🚀 Quick Start
 
@@ -80,39 +125,6 @@ python inference/video_inference.py
 
 ## 📂 Supported Datasets
 
-This deepfake detection system supports various popular deepfake datasets. Below are the recommended datasets for training and evaluation:
-
-### 🎬 Video-based Datasets
-
-#### **FaceForensics++**
-- **Description**: One of the most comprehensive deepfake datasets with 4 manipulation methods
-- **Size**: ~1,000 original videos, ~4,000 manipulated videos
-- **Manipulations**: Deepfakes, Face2Face, FaceSwap, NeuralTextures
-- **Quality**: Raw, c23 (light compression), c40 (heavy compression)
-- **Download**: [GitHub Repository](https://github.com/ondyari/FaceForensics)
-- **Usage**: Excellent for training robust models across different manipulation types
-
-#### **Celeb-DF (v2)**
-- **Description**: High-quality celebrity deepfake dataset
-- **Size**: 590 real videos, 5,639 deepfake videos
-- **Quality**: High-resolution with improved visual quality
-- **Download**: [Official Website](https://github.com/yuezunli/celeb-deepfakeforensics)
-- **Usage**: Great for testing model performance on high-quality deepfakes
-
-#### **DFDC (Deepfake Detection Challenge)**
-- **Description**: Facebook's large-scale deepfake detection dataset
-- **Size**: ~100,000 videos (real and fake)
-- **Diversity**: Multiple actors, ethnicities, and ages
-- **Download**: [Kaggle Competition](https://www.kaggle.com/c/deepfake-detection-challenge)
-- **Usage**: Large-scale training and benchmarking
-
-#### **DFD (Google's Deepfake Detection Dataset)**
-- **Description**: Google/Jigsaw deepfake dataset
-- **Size**: ~3,000 deepfake videos
-- **Quality**: High-quality with various compression levels
-- **Download**: [FaceForensics++ repository](https://github.com/ondyari/FaceForensics)
-- **Usage**: Additional training data for model robustness
-
 ### 🖼️ Image-based Datasets
 
 #### **140k Real and Fake Faces**
@@ -121,13 +133,6 @@ This deepfake detection system supports various popular deepfake datasets. Below
 - **Source**: StyleGAN-generated faces vs real faces
 - **Download**: [Kaggle Dataset](https://www.kaggle.com/xhlulu/140k-real-and-fake-faces)
 - **Usage**: Perfect for image-based deepfake detection training
-
-#### **CelebA-HQ**
-- **Description**: High-quality celebrity face dataset
-- **Size**: 30,000 high-resolution images
-- **Quality**: 1024×1024 resolution
-- **Download**: [GitHub Repository](https://github.com/tkarras/progressive_growing_of_gans)
-- **Usage**: Real face examples for training
 
 ### 🔧 Dataset Preparation
 
@@ -152,13 +157,6 @@ python tools/split_train_val.py
 # Edit video_dir & output_dir in the script, then run:
 python tools/split_dataset.py
 ```
-
-### 📋 Dataset Recommendations
-
-- **For Beginners**: Start with **140k Real and Fake Faces** (image-based, easy to work with)
-- **For Research**: Use **FaceForensics++** (comprehensive, multiple manipulation types)
-- **For Production**: Combine **DFDC** + **Celeb-DF** (large scale, diverse)
-- **For High-Quality Testing**: Use **Celeb-DF v2** (challenging, high-quality deepfakes)
 
 ### ⚠️ Dataset Usage Notes
 
@@ -200,6 +198,8 @@ val_paths:
 lr: 0.0001
 batch_size: 4
 num_epochs: 10
+use_cbam: False
+DEBUG_MODE: False
 ```
 
 ### Start Training
@@ -253,13 +253,77 @@ tensorboard --logdir lightning_logs
     ├── export_onnx.py            # ONNX export
     └── video_inference.py        # Multi-frame video inference
 ```
-
 ## 🛠️ Model Architecture
 
-- **Backbone**: EfficientNet-B0 (pre-trained on ImageNet)
-- **Classifier**: Custom 2-class classifier with dropout (0.4)
-- **Input Size**: 224x224 RGB images
-- **Output**: Binary classification (Real/Fake) with confidence scores
+### Backbone
+
+- **Base Model**: EfficientNet-B0
+- **Initialization**: ImageNet-pretrained weights
+- **Input Size**: 224 × 224 RGB images
+- **Feature Dimension**: 1280 channels
+
+### Attention Mechanism
+
+- **Attention Module**: Convolutional Block Attention Module (CBAM)
+- **Channel Attention**: Applied to the extracted feature representation
+- **Spatial Attention**: Applied after channel refinement
+- **Reduction Ratio**: 16
+- **Spatial Kernel Size**: 7 × 7
+
+### Classification Head
+
+- **Global Average Pooling**
+- **Dropout**: 0.4
+- **Fully Connected Layer**: 1280 → 2 classes
+- **Output**: Binary classification (Real / Fake)
+
+### Complete Architecture
+
+Input Image (224 × 224 × 3)
+↓
+EfficientNet-B0 Feature Extractor
+↓
+1280-Channel Feature Map
+↓
+CBAM
+├── Channel Attention
+└── Spatial Attention
+↓
+Global Average Pooling
+↓
+Dropout (0.4)
+↓
+Fully Connected Layer
+↓
+Real / Fake Prediction
+
+
+### Model Complexity
+
+The attention-enhanced model contains approximately **4.22 million trainable parameters** and requires approximately **385 MB of multiply-add operations** for a single forward pass at the configured input resolution.
+
+The CBAM module introduces a relatively small computational overhead compared with the complete EfficientNet-B0 backbone while providing additional channel and spatial feature refinement.
+
+## 📈 Results
+
+The CBAM-enhanced EfficientNet-B0 achieved strong validation performance on the 140K Real and Fake Faces dataset.
+
+The best validation performance was obtained around the fourth training epoch, with:
+
+- **Validation Accuracy**: approximately 99.51%
+- **Validation Precision**: approximately 99.32%
+- **Validation Recall**: approximately 99.70%
+- **Validation F1-score**: approximately 99.51%
+- **Validation AUROC**: approximately 99.99%
+
+The confusion matrix showed:
+
+- **9,968 correctly classified real images**
+- **9,927 correctly classified fake images**
+- **32 real images incorrectly classified as fake**
+- **73 fake images incorrectly classified as real**
+
+These results demonstrate the strong discriminative capability of the attention-enhanced EfficientNet-B0 architecture on the evaluated dataset.
 
 ## 📊 Performance
 
