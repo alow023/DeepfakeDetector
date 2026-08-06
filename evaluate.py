@@ -3,6 +3,7 @@ import torch
 import pandas as pd
 from PIL import Image
 from torchvision import transforms
+import matplotlib.pyplot as plt
 from torchvision.models import efficientnet_b0
 from sklearn.metrics import (
     accuracy_score,
@@ -21,6 +22,10 @@ MODEL_PATH = "models/best_model-v3.pt"
 TEST_FOLDER = r"C:\arissa\Deepfake detection\Data\test"
 
 OUTPUT_FILE = "prediction_results.xlsx"
+
+VISUALIZATION_FOLDER = "results_visualisations"
+
+os.makedirs(VISUALIZATION_FOLDER, exist_ok=True)
 
 # ======================================================
 # LOAD YOUR TRAINED MODEL (.ckpt)
@@ -173,6 +178,8 @@ f1 = f1_score(y_true,y_pred)
 
 cm = confusion_matrix(y_true,y_pred)
 
+predictions_df = pd.DataFrame(results)
+
 metrics = pd.DataFrame({
 
     "Metric":[
@@ -208,6 +215,121 @@ confusion = pd.DataFrame(
 )
 
 # ======================================================
+# VISUALISATIONS
+# ======================================================
+
+# -----------------------------
+# 1. Confusion Matrix
+# -----------------------------
+
+plt.figure(figsize=(6,5))
+
+plt.imshow(cm, interpolation="nearest")
+
+plt.title("Confusion Matrix")
+
+plt.colorbar()
+
+classes = ["REAL", "FAKE"]
+
+plt.xticks(range(2), classes)
+plt.yticks(range(2), classes)
+
+plt.xlabel("Predicted Label")
+plt.ylabel("True Label")
+
+for i in range(cm.shape[0]):
+    for j in range(cm.shape[1]):
+        plt.text(
+            j,
+            i,
+            str(cm[i,j]),
+            ha="center",
+            va="center",
+            fontsize=12
+        )
+
+plt.tight_layout()
+
+plt.savefig(
+    os.path.join(
+        VISUALIZATION_FOLDER,
+        "confusion_matrix.png"
+    ),
+    dpi=300
+)
+
+plt.close()
+
+
+# -----------------------------
+# 2. Confidence Distribution
+# -----------------------------
+
+confidence = predictions_df[
+    ["Real Probability", "Fake Probability"]
+].max(axis=1)
+
+plt.figure(figsize=(7,5))
+
+plt.hist(
+    confidence,
+    bins=20
+)
+
+plt.xlabel("Prediction Confidence")
+
+plt.ylabel("Number of Images")
+
+plt.title("Prediction Confidence Distribution")
+
+plt.tight_layout()
+
+plt.savefig(
+    os.path.join(
+        VISUALIZATION_FOLDER,
+        "confidence_distribution.png"
+    ),
+    dpi=300
+)
+
+plt.close()
+
+
+# -----------------------------
+# 3. Correct vs Incorrect
+# -----------------------------
+
+counts = predictions_df["Correct"].value_counts()
+
+labels = ["Correct", "Incorrect"]
+
+values = [
+    counts.get(True,0),
+    counts.get(False,0)
+]
+
+plt.figure(figsize=(5,5))
+
+plt.bar(labels, values)
+
+plt.ylabel("Number of Images")
+
+plt.title("Correct vs Incorrect Predictions")
+
+plt.tight_layout()
+
+plt.savefig(
+    os.path.join(
+        VISUALIZATION_FOLDER,
+        "correct_vs_incorrect.png"
+    ),
+    dpi=300
+)
+
+plt.close()
+
+# ======================================================
 # SAVE TO EXCEL
 # ======================================================
 
@@ -240,3 +362,4 @@ print(f"Precision: {precision:.4f}")
 print(f"Recall   : {recall:.4f}")
 print(f"F1 Score : {f1:.4f}")
 print(f"\nResults saved to {OUTPUT_FILE}")
+print(f"Visualisations saved to {VISUALIZATION_FOLDER}")
