@@ -5,7 +5,7 @@ from PIL import Image
 import argparse
 
 # Load your trained model
-def load_model(model_path="models/best_model.pt"):
+def load_model(model_path="models/best_model-v3.pt"):
     weights = EfficientNet_B0_Weights.IMAGENET1K_V1
     model = efficientnet_b0(weights=weights)
     in_features = model.classifier[1].in_features
