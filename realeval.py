@@ -9,7 +9,7 @@ from torchvision.models import efficientnet_b0
 # === Load model ===
 model = efficientnet_b0()
 model.classifier[1] = torch.nn.Linear(model.classifier[1].in_features, 2)
-model.load_state_dict(torch.load("models/best_model-v2.pt", map_location="cpu"))
+model.load_state_dict(torch.load("models/best_model-v3.pt", map_location="cpu"))
 model.eval()
 
 # === Preprocessing with optional noise ===
