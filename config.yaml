@@ -1,14 +1,12 @@
 lr: 0.0001
 batch_size: 4
-num_epochs: 1
+num_epochs: 10
 
 train_paths:
-  - C:/Datasets/1000_videos/train #train set path
-  - 
+  - "C:\\arissa\\Deepfake detection\\Data\\train" #train set path
 
 val_paths:
-  - C:/Datasets/1000_videos/validation # validation set path
-  - 
+  - "C:\\arissa\\Deepfake detection\\Data\\valid" # validation set path
 
 early_stopping_patience: 3  # Stop training if val_loss doesn’t improve after 3 epochs
 scheduler_factor: 0.5        # LR drops by half if stuck
