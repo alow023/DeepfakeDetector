@@ -34,7 +34,7 @@ For detailed system architecture diagrams, data flow, and component interactions
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/TRahulsingh/DeepfakeDetector.git
+   git clone https://github.com/alow023/Deepfake-Model-Evaluation.git
    cd DeepfakeDetector
    ```
 
